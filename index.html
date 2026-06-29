@@ -680,12 +680,7 @@
     </div>
   </div>
   <main class="main">
-    <div class="source-banner" id="sourceBanner">
-      <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-      <span id="sourceBannerText">Live from Google Sheets — updates automatically when your sheet changes.</span>
-      <div style="flex:1"></div>
-      <button onclick="resetToInput()" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:12px;font-family:var(--font-body);">Change source</button>
-    </div>
+
     <div class="controls">
       <div class="search-wrap">
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
@@ -697,10 +692,7 @@
         <option value="city">City A–Z</option>
         <option value="recent">Recently added</option>
       </select>
-      <button class="btn btn-accent" onclick="openAdd()">
-        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-        Add shop
-      </button>
+
     </div>
     <div class="city-pills" id="city-pills"></div>
     <div id="list-container"></div>
@@ -905,7 +897,6 @@ function resetToInput() {
 function showMain(sourceLabel) {
   document.getElementById('inputScreen').style.display = 'none';
   document.getElementById('mainContent').style.display = 'block';
-  if (sourceLabel) document.getElementById('sourceBannerText').textContent = sourceLabel;
 }
 
 // Drag and drop
