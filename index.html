@@ -523,8 +523,69 @@
     gap: 8px;
     margin-bottom: 1.5rem;
   }
-
   .source-banner svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+
+  /* ── Input screen ── */
+  .input-screen {
+    max-width: 960px; margin: 2rem auto; padding: 0 2rem;
+  }
+  .input-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 1.5rem; }
+  @media (max-width: 600px) { .input-modes { grid-template-columns: 1fr; } }
+  .mode-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem; display: flex;
+    flex-direction: column; gap: 12px;
+  }
+  .mode-card.primary { border-color: var(--accent-mid); }
+  .mode-badge { font-size: 10px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 2px; }
+  .mode-title { font-family: var(--font-display); font-size: 18px; }
+  .mode-desc { font-size: 12px; color: var(--ink-3); line-height: 1.7; flex: 1; }
+  .url-input-row { display: flex; gap: 8px; }
+  .url-input-row input {
+    flex: 1; background: var(--bg); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--ink); font-family: var(--font-body);
+    font-size: 12px; padding: 9px 12px; outline: none; min-width: 0;
+    transition: border-color 0.15s;
+  }
+  .url-input-row input:focus { border-color: var(--accent-mid); }
+  .url-input-row input::placeholder { color: var(--ink-3); }
+  .btn-load {
+    background: var(--accent); border: none; border-radius: var(--radius);
+    color: #fff; cursor: pointer; font-family: var(--font-body); font-size: 12px;
+    font-weight: 500; padding: 9px 16px; white-space: nowrap; transition: opacity 0.15s; flex-shrink: 0;
+  }
+  .btn-load:hover { opacity: 0.85; }
+  .btn-load:disabled { opacity: 0.45; cursor: default; }
+  .upload-drop {
+    border: 1.5px dashed var(--border); border-radius: var(--radius);
+    padding: 1.25rem 1rem; text-align: center; cursor: pointer;
+    transition: border-color 0.15s, background 0.15s; background: var(--bg); position: relative;
+  }
+  .upload-drop:hover, .upload-drop.drag-over { border-color: var(--accent-mid); background: var(--accent-light); }
+  .upload-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+  .upload-drop p { font-size: 12px; color: var(--ink-3); }
+  .upload-drop strong { color: var(--accent); }
+  .setup-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+  }
+  .setup-box-title { font-size: 11px; font-weight: 500; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px; }
+  .setup-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 10px; }
+  .setup-step { font-size: 12px; color: var(--ink-2); line-height: 1.7; }
+  .setup-step-num { color: var(--accent); font-weight: 600; }
+
+  /* ── Toast ── */
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; font-size: 13px; padding: 10px 20px; border-radius: 20px; display: none; z-index: 999; white-space: nowrap; }
+
+  @media (max-width: 480px) {
+    .site-header { padding: 0 1rem; }
+    .hero { padding: 1.5rem 1rem 1.25rem; }
+    .stats-row { gap: 1rem; }
+    .stat-num { font-size: 22px; }
+    .main { padding: 1.25rem 1rem 3rem; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(150px,1fr)); }
+    .input-screen { padding: 0 1rem; }
+  }
 
   /* ── Empty ── */
   .empty {
@@ -557,48 +618,94 @@
   <span class="header-meta" id="header-meta">Loading…</span>
 </header>
 
-<div class="hero">
-  <div class="hero-inner">
-    <h1 class="hero-title">Every cup, catalogued.</h1>
-    <p class="hero-sub">A running log of coffee shops visited, rated, and remembered.</p>
-    <div class="stats-row" id="stats-row">
-      <div class="stat"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Visited</span></div>
-      <div class="stat-divider"></div>
-      <div class="stat"><span class="stat-num" id="stat-avg">—</span><span class="stat-label">Avg rating</span></div>
-      <div class="stat-divider"></div>
-      <div class="stat"><span class="stat-num" id="stat-top">—</span><span class="stat-label">Cities</span></div>
-      <div class="stat-divider"></div>
-      <div class="stat"><span class="stat-num" id="stat-9plus">—</span><span class="stat-label">Rated 9+</span></div>
+<!-- Input screen -->
+<div id="inputScreen">
+  <div class="hero" style="border-bottom:none;">
+    <div class="hero-inner">
+      <h1 class="hero-title">Every cup, catalogued.</h1>
+      <p class="hero-sub">A running log of coffee shops visited, rated, and remembered.</p>
+    </div>
+  </div>
+  <div class="input-screen">
+    <div class="input-modes">
+      <div class="mode-card primary">
+        <div>
+          <p class="mode-badge">⚡ Live &amp; Auto-updating</p>
+          <p class="mode-title">Google Sheet URL</p>
+        </div>
+        <p class="mode-desc">Paste your published CSV link and this page fetches your latest data every time it loads. Works best when hosted online.</p>
+        <div class="url-input-row">
+          <input type="text" id="csvUrl" placeholder="https://docs.google.com/…/pub?output=csv" />
+          <button class="btn-load" id="loadUrlBtn" onclick="loadFromUrl()">Load</button>
+        </div>
+      </div>
+      <div class="mode-card">
+        <div>
+          <p class="mode-badge">📂 Manual Upload</p>
+          <p class="mode-title">Upload a CSV file</p>
+        </div>
+        <p class="mode-desc">Download your sheet as a CSV and upload it here. Great for local use or sharing with friends who have their own sheet.</p>
+        <div class="upload-drop" id="uploadDrop">
+          <input type="file" accept=".csv,text/csv" id="fileInput" onchange="handleFile(this.files[0])">
+          <p>Drop file here or <strong>click to browse</strong></p>
+        </div>
+      </div>
+    </div>
+    <div class="setup-box">
+      <p class="setup-box-title">How to get your CSV from Google Sheets</p>
+      <div class="setup-steps">
+        <p class="setup-step"><span class="setup-step-num">1 &nbsp;</span>Open your Google Sheet → <strong>File → Share → Publish to web</strong></p>
+        <p class="setup-step"><span class="setup-step-num">2 &nbsp;</span>Select your sheet tab and choose <strong>Comma-separated values (.csv)</strong></p>
+        <p class="setup-step"><span class="setup-step-num">3 &nbsp;</span>Click <strong>Publish</strong> — copy the URL for live mode, or click it to download for file upload</p>
+      </div>
     </div>
   </div>
 </div>
 
-<main class="main">
-  <div class="source-banner">
-    <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-    Live from Google Sheets — updates automatically when your sheet changes.
-  </div>
-
-  <div class="controls">
-    <div class="search-wrap">
-      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      <input type="text" id="search" placeholder="Search shops or cities…">
+<!-- Main content (shown after data loads) -->
+<div id="mainContent" style="display:none;">
+  <div class="hero">
+    <div class="hero-inner">
+      <h1 class="hero-title">Every cup, catalogued.</h1>
+      <p class="hero-sub">A running log of coffee shops visited, rated, and remembered.</p>
+      <div class="stats-row" id="stats-row">
+        <div class="stat"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Visited</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" id="stat-avg">—</span><span class="stat-label">Avg rating</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" id="stat-top">—</span><span class="stat-label">Cities</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" id="stat-9plus">—</span><span class="stat-label">Rated 9+</span></div>
+      </div>
     </div>
-    <select id="sort">
-      <option value="score">Highest rated</option>
-      <option value="name">Name A–Z</option>
-      <option value="city">City A–Z</option>
-      <option value="recent">Recently added</option>
-    </select>
-    <button class="btn btn-accent" onclick="openAdd()">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-      Add shop
-    </button>
   </div>
-
-  <div class="city-pills" id="city-pills"></div>
-  <div id="list-container"></div>
-</main>
+  <main class="main">
+    <div class="source-banner" id="sourceBanner">
+      <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      <span id="sourceBannerText">Live from Google Sheets — updates automatically when your sheet changes.</span>
+      <div style="flex:1"></div>
+      <button onclick="resetToInput()" style="background:none;border:none;cursor:pointer;color:var(--accent);font-size:12px;font-family:var(--font-body);">Change source</button>
+    </div>
+    <div class="controls">
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="search" placeholder="Search shops or cities…">
+      </div>
+      <select id="sort">
+        <option value="score">Highest rated</option>
+        <option value="name">Name A–Z</option>
+        <option value="city">City A–Z</option>
+        <option value="recent">Recently added</option>
+      </select>
+      <button class="btn btn-accent" onclick="openAdd()">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+        Add shop
+      </button>
+    </div>
+    <div class="city-pills" id="city-pills"></div>
+    <div id="list-container"></div>
+  </main>
+</div>
 
 <!-- Detail modal -->
 <div class="modal-overlay" id="detail-overlay">
@@ -632,7 +739,11 @@
 </div>
 
 <script>
-const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDAjCkm2vo1AzSw-8pMr0suwvExMtnH-pEff0Dn1GmX0CMZcZwDSVkh9z86rSvRA/pub?output=csv';
+// ── Bake in your sheet URL here for hosted/live version ──
+// Set to your published Google Sheets CSV URL to auto-load on page open.
+// Leave empty ('') to show the input screen instead.
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDAjCkm2vo1AzSw-8pMr0suwvExMtnH-pEff0Dn1GmX0CMZcZwDSVkh9z86rSvRA/pubhtml';
+
 const FALLBACK = [
   {name:"Domestique Coffee - Panache (Five Points South)",rating:9.3,city:"Birmingham, AL",address:"1024 20th St S #103, Birmingham, AL 35205"},
   {name:"George Howell Coffee",rating:9.2,city:"Boston, MA",address:"505 Washington St, Boston, MA 02111"},
@@ -749,76 +860,115 @@ function barClass(r) {
 }
 
 function parseCSV(text) {
-  const lines = text.trim().split('\n');
-  const headers = lines[0].split('\t').map(h => h.trim().replace(/"/g,''));
+  const lines = text.trim().split(/\r?\n/);
+  // Auto-detect delimiter: tab or comma
+  const delim = lines[0].includes('\t') ? '\t' : ',';
+  const headers = lines[0].split(delim).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
   return lines.slice(1).map(line => {
-    const cols = line.split('\t').map(c => c.trim().replace(/^"|"$/g,''));
+    const cols = [];
+    let cur = '', inQ = false;
+    for (const c of line) {
+      if (c === '"') { inQ = !inQ; }
+      else if (c === delim && !inQ) { cols.push(cur.trim()); cur = ''; }
+      else { cur += c; }
+    }
+    cols.push(cur.trim());
     const obj = {};
-    headers.forEach((h, i) => obj[h] = cols[i] || '');
-    const rating = parseFloat(obj['Your Rating'] || obj['rating'] || '0');
+    headers.forEach((h, i) => { obj[h] = (cols[i] || '').replace(/^"|"$/g, '').trim(); });
+    const rating = parseFloat(obj['your rating'] || obj['rating'] || '0');
     return {
       id: Math.random().toString(36).slice(2),
-      name: obj['Name'] || obj['name'] || '',
+      name: obj['name'] || '',
       rating: isNaN(rating) ? 0 : rating,
-      city: obj['City / State'] || obj['city'] || '',
-      address: obj['Address'] || obj['address'] || '',
-      date: obj['Date'] || obj['date'] || '',
-      notes: obj['Notes'] || obj['notes'] || ''
+      city: obj['city / state'] || obj['city'] || '',
+      address: obj['address'] || '',
+      date: obj['date'] || '',
+      notes: obj['notes'] || ''
     };
   }).filter(s => s.name && s.rating > 0);
 }
 
-async function tryFetch(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error('bad response');
-  const text = await r.text();
-  const parsed = parseCSV(text);
-  if (parsed.length < 5) throw new Error('too few rows');
-  return parsed;
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.style.display = 'block';
+  setTimeout(() => { t.style.display = 'none'; }, 3000);
 }
 
-async function loadData() {
-  document.getElementById('header-meta').textContent = 'Loading...';
-  // Save the URL to localStorage so it persists across visits
-  try { localStorage.setItem('coffee-csv-url', CSV_URL); } catch(e) {}
-  const PROXIES = [
-    'https://corsproxy.io/?' + encodeURIComponent(CSV_URL),
-    'https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL),
-  ];
-  let loaded = false;
+function resetToInput() {
+  document.getElementById('mainContent').style.display = 'none';
+  document.getElementById('inputScreen').style.display = 'block';
+  const fi = document.getElementById('fileInput');
+  if (fi) fi.value = '';
+}
+
+function showMain(sourceLabel) {
+  document.getElementById('inputScreen').style.display = 'none';
+  document.getElementById('mainContent').style.display = 'block';
+  if (sourceLabel) document.getElementById('sourceBannerText').textContent = sourceLabel;
+}
+
+// Drag and drop
+const dropZone = document.getElementById('uploadDrop');
+if (dropZone) {
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  });
+}
+
+function handleFile(file) {
+  if (!file) return;
+  if (!file.name.endsWith('.csv') && file.type !== 'text/csv') { showToast('Please upload a .csv file'); return; }
+  const reader = new FileReader();
+  reader.onload = e => processData(e.target.result, 'Loaded from file — re-upload to refresh.');
+  reader.readAsText(file);
+}
+
+async function loadFromUrl() {
+  let url = (document.getElementById('csvUrl').value || '').trim();
+  if (!url) { showToast('Paste your Google Sheet CSV URL first.'); return; }
+  const pubMatch = url.match(/\/spreadsheets\/d\/e\/([a-zA-Z0-9_-]+)/);
+  const editMatch = url.match(/\/spreadsheets\/d\/([a-zA-Z0-9_-]+)/);
+  if (pubMatch && !url.includes('output=csv')) {
+    const gid = (url.match(/[?&]gid=(\d+)/) || [])[1] || '0';
+    url = `https://docs.google.com/spreadsheets/d/e/${pubMatch[1]}/pub?output=csv&gid=${gid}`;
+  } else if (editMatch && !url.includes('output=csv') && !url.includes('format=csv')) {
+    const gid = (url.match(/[?&]gid=(\d+)/) || [])[1] || '0';
+    url = `https://docs.google.com/spreadsheets/d/${editMatch[1]}/export?format=csv&gid=${gid}`;
+  }
+  const btn = document.getElementById('loadUrlBtn');
+  if (btn) { btn.textContent = 'Loading…'; btn.disabled = true; }
   try {
-    shops = await tryFetch(CSV_URL);
-    loaded = true;
-  } catch(e) {}
-  if (!loaded) {
-    for (const proxy of PROXIES) {
-      try {
-        shops = await tryFetch(proxy);
-        loaded = true;
-        break;
-      } catch(e) {}
-    }
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    if (text.trim().startsWith('<')) throw new Error('Got HTML — make sure your sheet is published as CSV.');
+    processData(text, 'Live from Google Sheets — updates automatically when your sheet changes.');
+  } catch(e) {
+    showToast('Could not load sheet: ' + e.message);
+  } finally {
+    if (btn) { btn.textContent = 'Load'; btn.disabled = false; }
   }
-  if (!loaded) {
-    shops = FALLBACK.map((s, i) => ({...s, id: String(i), date:'', notes:''}));
-  }
-  loadExtras();
+}
+
+function processData(text, sourceLabel) {
+  const parsed = parseCSV(text);
+  if (!parsed.length) { showToast('No rows found — check your column names.'); return; }
+  shops = parsed;
+  extras = [];
   updateStats();
   buildCityPills();
   render();
-  document.getElementById('header-meta').textContent = (shops.length + extras.length) + ' shops';
+  showMain(sourceLabel);
+  showToast(`Loaded ${shops.length} shops ✓`);
+  document.getElementById('header-meta').textContent = shops.length + ' shops';
 }
 
-function loadExtras() {
-  try {
-    const stored = localStorage.getItem('coffee-extras');
-    extras = stored ? JSON.parse(stored) : [];
-  } catch(e) { extras = []; }
-}
-
-function saveExtras() {
-  try { localStorage.setItem('coffee-extras', JSON.stringify(extras)); } catch(e) {}
-}
+function saveExtras() { /* extras are session-only in this version */ }
 
 function allShops() {
   return [...shops, ...extras];
@@ -1008,7 +1158,14 @@ document.getElementById('sort').addEventListener('change', render);
 document.getElementById('detail-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetail(); });
 document.getElementById('edit-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeEdit(); });
 
-loadData();
+// Auto-load if SHEET_URL is baked in (for hosted/live version)
+window.addEventListener('DOMContentLoaded', () => {
+  if (SHEET_URL) {
+    const input = document.getElementById('csvUrl');
+    if (input) input.value = SHEET_URL;
+    loadFromUrl();
+  }
+});
 </script>
 </body>
 </html>
