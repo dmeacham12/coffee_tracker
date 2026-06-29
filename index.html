@@ -748,26 +748,13 @@ function barClass(r) {
   return 'bar-base';
 }
 
-function parseCSVLine(line) {
-  const cols = [];
-  let cur = '', inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (ch === '"') { inQ = !inQ; }
-    else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
-    else { cur += ch; }
-  }
-  cols.push(cur.trim());
-  return cols;
-}
-
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g,'').trim());
+  const headers = lines[0].split('\t').map(h => h.trim().replace(/"/g,''));
   return lines.slice(1).map(line => {
-    const cols = parseCSVLine(line);
+    const cols = line.split('\t').map(c => c.trim().replace(/^"|"$/g,''));
     const obj = {};
-    headers.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g,'').trim());
+    headers.forEach((h, i) => obj[h] = cols[i] || '');
     const rating = parseFloat(obj['Your Rating'] || obj['rating'] || '0');
     return {
       id: Math.random().toString(36).slice(2),
