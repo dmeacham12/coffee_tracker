@@ -815,14 +815,15 @@ function updateStats() {
 function buildCityPills() {
   const all = allShops();
   const cities = ['All', ...new Set(all.map(s => s.city).filter(Boolean).sort())];
-  document.getElementById('city-pills').innerHTML = cities.map(c =>
-    `<button class="pill${c===activeCity?' active':''}" data-city="${esc(c)}" onclick="setCity(this.dataset.city)">${c}</button>`
+  window._cities = cities;
+  document.getElementById('city-pills').innerHTML = cities.map((c,i) =>
+    `<button class="pill${c===activeCity?' active':''}" data-idx="${i}" onclick="setCity(window._cities[+this.dataset.idx])">${c}</button>`
   ).join('');
 }
 
 function setCity(c) {
   activeCity = c;
-  document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b.textContent.trim() === c));
+  document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b.dataset.idx !== undefined && window._cities[+b.dataset.idx] === c));
   render();
 }
 
