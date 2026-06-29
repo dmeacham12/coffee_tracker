@@ -633,7 +633,6 @@
 
 <script>
 const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDAjCkm2vo1AzSw-8pMr0suwvExMtnH-pEff0Dn1GmX0CMZcZwDSVkh9z86rSvRA/pub?output=csv';
-
 const FALLBACK = [
   {name:"Domestique Coffee - Panache (Five Points South)",rating:9.3,city:"Birmingham, AL",address:"1024 20th St S #103, Birmingham, AL 35205"},
   {name:"George Howell Coffee",rating:9.2,city:"Boston, MA",address:"505 Washington St, Boston, MA 02111"},
@@ -666,7 +665,7 @@ const FALLBACK = [
   {name:"Birch Coffee",rating:8.2,city:"New York, NY",address:"134 1/2 E 62nd St, New York, NY 10065"},
   {name:"Crema Coffee Roasters",rating:8.2,city:"Nashville, TN",address:"15 Hermitage Ave, Nashville, TN 37210"},
   {name:"Revelator Coffee",rating:8.2,city:"Birmingham, AL",address:""},
-  {name:"Dancing Goats\u00ae Ponce City Market",rating:8.2,city:"Atlanta, GA",address:"650 North Avenue NE, Atlanta, GA 30308"},
+  {name:"Dancing Goats® Ponce City Market",rating:8.2,city:"Atlanta, GA",address:"650 North Avenue NE, Atlanta, GA 30308"},
   {name:"The Lazy Llama Coffee Bar",rating:8.1,city:"Brooklyn, NY",address:""},
   {name:"Orange Spot Coffee",rating:8.1,city:"North Charleston, SC",address:"1011 E Montague Ave, North Charleston, SC 29405"},
   {name:"Valor Coffee",rating:8.1,city:"Alpharetta, GA",address:"44 Milton Ave, Alpharetta, GA 30009"},
@@ -683,14 +682,14 @@ const FALLBACK = [
   {name:"Maria's Java Sun",rating:7.8,city:"Marblehead, MA",address:"35 Atlantic Ave, Marblehead, MA 01945"},
   {name:"Butler Bakeshop & Espresso Bar",rating:7.8,city:"New York, NY",address:"177 Lafayette St, New York, NY 10013"},
   {name:"For Five Coffee Times Square",rating:7.8,city:"New York, NY",address:"117 W 46th St, New York, NY 10036"},
-  {name:"In\u00e8s",rating:7.8,city:"New York, NY",address:""},
+  {name:"Inès",rating:7.8,city:"New York, NY",address:""},
   {name:"8th & Roast",rating:7.6,city:"Nashville, TN",address:"2108 8th Ave S, Nashville, TN 37204"},
   {name:"FILTER-Coffee Parlor",rating:7.6,city:"Birmingham, AL",address:"1927 11th Ave S, Birmingham, AL 35205"},
   {name:"Bagels by the Sea",rating:7.5,city:"Seaside, OR",address:"210 S Holladay Dr, Seaside, OR 97138"},
   {name:"Equator Coffees",rating:7.5,city:"San Francisco, CA",address:"2 Marina Blvd, San Francisco, CA 94123"},
   {name:"Tatte Bakery & Cafe",rating:7.5,city:"Boston, MA",address:"399 Boylston St, Boston, MA 02116"},
   {name:"Blank Street Coffee",rating:7.5,city:"New York, NY",address:"127 E 23rd St, New York, NY 10010"},
-  {name:"Bandit P\u00e2tisserie",rating:7.5,city:"Birmingham, AL",address:"2323 1st Ave N, Birmingham, AL 35203"},
+  {name:"Bandit Pâtisserie",rating:7.5,city:"Birmingham, AL",address:"2323 1st Ave N, Birmingham, AL 35203"},
   {name:"Westville Dumbo",rating:7.4,city:"Brooklyn, NY",address:""},
   {name:"Kaffee Vonsolln",rating:7.3,city:"Portsmouth, NH",address:"79 Daniel St, Portsmouth, NH 03801"},
   {name:"Clerks Coffee Company",rating:7.3,city:"Charleston, SC",address:"181 Church St, Charleston, SC 29401"},
@@ -726,6 +725,8 @@ const FALLBACK = [
   {name:"Satterfield's Restaurant",rating:1.0,city:"Birmingham, AL",address:"3161 Cahaba Heights Rd, Birmingham, AL 35243"}
 ];
 
+
+
 let shops = [];
 let extras = [];
 let activeCity = 'All';
@@ -747,13 +748,26 @@ function barClass(r) {
   return 'bar-base';
 }
 
+function parseCSVLine(line) {
+  const cols = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inQ = !inQ; }
+    else if (ch === ',' && !inQ) { cols.push(cur.trim()); cur = ''; }
+    else { cur += ch; }
+  }
+  cols.push(cur.trim());
+  return cols;
+}
+
 function parseCSV(text) {
   const lines = text.trim().split('\n');
-  const headers = lines[0].split('\t').map(h => h.trim().replace(/"/g,''));
+  const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g,'').trim());
   return lines.slice(1).map(line => {
-    const cols = line.split('\t').map(c => c.trim().replace(/^"|"$/g,''));
+    const cols = parseCSVLine(line);
     const obj = {};
-    headers.forEach((h, i) => obj[h] = cols[i] || '');
+    headers.forEach((h, i) => obj[h] = (cols[i] || '').replace(/^"|"$/g,'').trim());
     const rating = parseFloat(obj['Your Rating'] || obj['rating'] || '0');
     return {
       id: Math.random().toString(36).slice(2),
@@ -767,22 +781,45 @@ function parseCSV(text) {
   }).filter(s => s.name && s.rating > 0);
 }
 
+async function tryFetch(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('bad response');
+  const text = await r.text();
+  const parsed = parseCSV(text);
+  if (parsed.length < 5) throw new Error('too few rows');
+  return parsed;
+}
+
 async function loadData() {
+  document.getElementById('header-meta').textContent = 'Loading...';
+  // Save the URL to localStorage so it persists across visits
+  try { localStorage.setItem('coffee-csv-url', CSV_URL); } catch(e) {}
+  const PROXIES = [
+    'https://corsproxy.io/?' + encodeURIComponent(CSV_URL),
+    'https://api.allorigins.win/raw?url=' + encodeURIComponent(CSV_URL),
+  ];
+  let loaded = false;
   try {
-    const r = await fetch(CSV_URL + '&t=' + Date.now());
-    if (r.ok) {
-      const text = await r.text();
-      shops = parseCSV(text);
-      if (shops.length < 5) throw new Error('too few');
-    } else throw new Error('fetch failed');
-  } catch(e) {
+    shops = await tryFetch(CSV_URL);
+    loaded = true;
+  } catch(e) {}
+  if (!loaded) {
+    for (const proxy of PROXIES) {
+      try {
+        shops = await tryFetch(proxy);
+        loaded = true;
+        break;
+      } catch(e) {}
+    }
+  }
+  if (!loaded) {
     shops = FALLBACK.map((s, i) => ({...s, id: String(i), date:'', notes:''}));
   }
   loadExtras();
   updateStats();
   buildCityPills();
   render();
-  document.getElementById('header-meta').textContent = shops.length + extras.length + ' shops';
+  document.getElementById('header-meta').textContent = (shops.length + extras.length) + ' shops';
 }
 
 function loadExtras() {
