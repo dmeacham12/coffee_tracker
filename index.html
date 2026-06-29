@@ -336,6 +336,26 @@
     margin-top: 4px;
   }
 
+  .card-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: var(--accent-light);
+    border: 1px solid #b8d9c4;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.12s;
+  }
+  .card-nav-btn:hover { background: #d4eadb; }
+  .card-nav-btn svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
+
   /* rating color tiers */
   .r-top    { color: #2d5a3d; }
   .r-high   { color: #1a3a28; }
@@ -1044,7 +1064,10 @@ function render() {
 
 function card(s) {
   const barW = Math.round((s.rating / 10) * 100);
-  return `<div class="card" onclick="openDetail(${JSON.stringify(s.id)})">
+  const mapsUrl = s.address
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.address + ' ' + (s.cityState||s.city))}`
+    : s.cityState ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' ' + s.cityState)}` : null;
+  return `<div class="card">
     <div class="card-rating ${ratingClass(s.rating)}">${s.rating.toFixed(1)}<span>/10</span></div>
     <div class="card-name">${esc(s.name)}</div>
     <div class="card-city">
@@ -1053,6 +1076,7 @@ function card(s) {
     </div>
     ${s.date ? `<div class="card-date">${s.date}</div>` : ''}
     ${s.notes ? `<div class="card-note">${esc(s.notes)}</div>` : ''}
+    ${mapsUrl ? `<a class="card-nav-btn" href="${mapsUrl}" target="_blank"><svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Take Me There</a>` : ''}
     <div class="card-bar ${barClass(s.rating)}" style="width:${barW}%"></div>
   </div>`;
 }
