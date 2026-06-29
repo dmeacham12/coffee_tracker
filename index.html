@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee Shop Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1c1c1a;
+    --ink-2: #4a4a45;
+    --ink-3: #8a8a82;
+    --bg: #f8f7f4;
+    --surface: #ffffff;
+    --border: #e6e4de;
+    --border-strong: #ccc9be;
+    --accent: #2d5a3d;
+    --accent-light: #edf4ef;
+    --accent-mid: #5a8f6e;
+    --warm: #c4784a;
+    --warm-light: #fdf0e8;
+    --radius: 10px;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* ── Header ── */
+  .site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-size: 20px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .header-meta {
+    font-size: 13px;
+    color: var(--ink-3);
+  }
+
+  /* ── Hero stats ── */
+  .hero {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 2.5rem 2rem 2rem;
+  }
+
+  .hero-inner {
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    color: var(--ink);
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-sub {
+    font-size: 15px;
+    color: var(--ink-3);
+    margin-bottom: 2rem;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-num {
+    font-family: var(--font-display);
+    font-size: 28px;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-divider {
+    width: 1px;
+    background: var(--border);
+    align-self: stretch;
+    margin: 4px 0;
+  }
+
+  /* ── Main layout ── */
+  .main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    stroke: var(--ink-3);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    pointer-events: none;
+  }
+
+  input[type=text] {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px 0 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input[type=text]:focus { border-color: var(--accent-mid); }
+
+  select {
+    height: 38px;
+    padding: 0 32px 0 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface);
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink);
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%238a8a82' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 11px center;
+  }
+
+  /* ── City pills ── */
+  .city-pills {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .pill {
+    padding: 4px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.12s;
+    font-family: var(--font-body);
+    white-space: nowrap;
+  }
+
+  .pill:hover { border-color: var(--border-strong); color: var(--ink); }
+  .pill.active { background: var(--accent-light); border-color: var(--accent-mid); color: var(--accent); font-weight: 500; }
+
+  /* ── Section headings ── */
+  .section-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 2rem 0 1rem;
+  }
+
+  .section-head h2 {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .section-head::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .section-count {
+    font-size: 12px;
+    color: var(--ink-3);
+    margin-left: -6px;
+  }
+
+  /* ── Grid ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 10px;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.1s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+
+  .card-rating {
+    font-family: var(--font-display);
+    font-size: 30px;
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .card-rating span {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-3);
+    font-weight: 300;
+  }
+
+  .card-name {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.35;
+    margin-bottom: 4px;
+  }
+
+  .card-city {
+    font-size: 12px;
+    color: var(--ink-3);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .card-note {
+    margin-top: 8px;
+    font-size: 12px;
+    color: var(--ink-2);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+
+  .card-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    border-radius: 0 2px 0 0;
+    opacity: 0.55;
+  }
+
+  .card-date {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 4px;
+  }
+
+  /* rating color tiers */
+  .r-top    { color: #2d5a3d; }
+  .r-high   { color: #1a3a28; }
+  .r-mid    { color: #5a4a20; }
+  .r-low    { color: #7a4a2a; }
+  .r-base   { color: #8a3a3a; }
+  .bar-top  { background: #2d5a3d; }
+  .bar-high { background: #3d7a52; }
+  .bar-mid  { background: #8a7040; }
+  .bar-low  { background: #a06040; }
+  .bar-base { background: #a04040; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    backdrop-filter: blur(2px);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.75rem;
+    width: min(500px, 100%);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+  }
+
+  .modal-rating {
+    font-family: var(--font-display);
+    font-size: 52px;
+    line-height: 1;
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-3);
+    font-size: 20px;
+    padding: 4px;
+    line-height: 1;
+  }
+
+  .modal-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--ink);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+
+  .modal-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 1rem;
+    font-size: 14px;
+    color: var(--ink-2);
+  }
+
+  .modal-meta-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .modal-meta-row svg {
+    width: 14px; height: 14px;
+    stroke: var(--ink-3);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .modal-notes-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink-3);
+    margin-bottom: 4px;
+    margin-top: 1rem;
+  }
+
+  .modal-notes {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.6;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 13px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+    transition: background 0.12s, border-color 0.12s;
+    text-decoration: none;
+  }
+
+  .btn:hover { background: var(--bg); }
+  .btn svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+  .btn-accent { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-accent:hover { background: #234a31; }
+  .btn-danger { border-color: #e8b4b4; color: #a03030; }
+  .btn-danger:hover { background: #fdf0f0; }
+  .btn-spacer { flex: 1; }
+
+  /* ── Edit form ── */
+  .form-field { margin-bottom: 1rem; }
+  .form-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--ink-3);
+    margin-bottom: 5px;
+  }
+
+  .form-field input,
+  .form-field textarea,
+  .form-field select {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  .form-field input:focus,
+  .form-field textarea:focus { border-color: var(--accent-mid); }
+  .form-field textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* ── Data source banner ── */
+  .source-banner {
+    background: var(--accent-light);
+    border: 1px solid #b8d9c4;
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    font-size: 13px;
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .source-banner svg { width: 15px; height: 15px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; flex-shrink: 0; }
+
+  /* ── Empty ── */
+  .empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--ink-3);
+  }
+
+  .empty svg { width: 40px; height: 40px; stroke: var(--ink-3); fill: none; stroke-width: 1.5; margin-bottom: 12px; }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .site-header { padding: 0 1rem; }
+    .hero { padding: 1.5rem 1rem 1.25rem; }
+    .main { padding: 1.25rem 1rem; }
+    .stats-row { gap: 1rem; }
+    .stat-num { font-size: 22px; }
+    .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 8px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="logo">
+    <span class="logo-dot"></span>
+    Coffee shops
+  </div>
+  <span class="header-meta" id="header-meta">Loading…</span>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1 class="hero-title">Every cup, catalogued.</h1>
+    <p class="hero-sub">A running log of coffee shops visited, rated, and remembered.</p>
+    <div class="stats-row" id="stats-row">
+      <div class="stat"><span class="stat-num" id="stat-total">—</span><span class="stat-label">Visited</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="stat-avg">—</span><span class="stat-label">Avg rating</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="stat-top">—</span><span class="stat-label">Cities</span></div>
+      <div class="stat-divider"></div>
+      <div class="stat"><span class="stat-num" id="stat-9plus">—</span><span class="stat-label">Rated 9+</span></div>
+    </div>
+  </div>
+</div>
+
+<main class="main">
+  <div class="source-banner">
+    <svg viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+    Live from Google Sheets — updates automatically when your sheet changes.
+  </div>
+
+  <div class="controls">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="search" placeholder="Search shops or cities…">
+    </div>
+    <select id="sort">
+      <option value="score">Highest rated</option>
+      <option value="name">Name A–Z</option>
+      <option value="city">City A–Z</option>
+      <option value="recent">Recently added</option>
+    </select>
+    <button class="btn btn-accent" onclick="openAdd()">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      Add shop
+    </button>
+  </div>
+
+  <div class="city-pills" id="city-pills"></div>
+  <div id="list-container"></div>
+</main>
+
+<!-- Detail modal -->
+<div class="modal-overlay" id="detail-overlay">
+  <div class="modal" id="detail-modal"></div>
+</div>
+
+<!-- Add/Edit modal -->
+<div class="modal-overlay" id="edit-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="edit-title" style="font-family:var(--font-display);font-size:22px;font-weight:400">Add a coffee shop</h2>
+      <button class="modal-close" onclick="closeEdit()">✕</button>
+    </div>
+    <div class="form-field"><label class="form-label">Name</label><input type="text" id="f-name" placeholder="Onyx Coffee Lab"></div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">Rating (out of 10)</label><input type="number" id="f-rating" min="0" max="10" step="0.1" placeholder="8.5"></div>
+      <div class="form-field"><label class="form-label">Date visited</label><input type="date" id="f-date"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-field"><label class="form-label">City</label><input type="text" id="f-city" placeholder="Portland"></div>
+      <div class="form-field"><label class="form-label">State</label><input type="text" id="f-state" placeholder="OR"></div>
+    </div>
+    <div class="form-field"><label class="form-label">Address</label><input type="text" id="f-address" placeholder="123 Coffee St"></div>
+    <div class="form-field"><label class="form-label">Notes</label><textarea id="f-notes" placeholder="What made it memorable…"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeEdit()">Cancel</button>
+      <div class="btn-spacer"></div>
+      <button class="btn btn-accent" onclick="saveShop()">Save shop</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDAjCkm2vo1AzSw-8pMr0suwvExMtnH-pEff0Dn1GmX0CMZcZwDSVkh9z86rSvRA/pub?output=csv';
+
+const FALLBACK = [
+  {name:"Domestique Coffee - Panache (Five Points South)",rating:9.3,city:"Birmingham, AL",address:"1024 20th St S #103, Birmingham, AL 35205"},
+  {name:"George Howell Coffee",rating:9.2,city:"Boston, MA",address:"505 Washington St, Boston, MA 02111"},
+  {name:"Conwell Coffee Hall",rating:9.2,city:"New York, NY",address:"6 Hanover St, New York, NY 10005"},
+  {name:"Domestique Coffee - Dawn Patrol (Homewood)",rating:9.2,city:"Homewood, AL",address:"1724 27th Ct S, Birmingham, AL 35209"},
+  {name:"Daily Edition",rating:9.1,city:"Homewood, AL",address:"186 Oxmoor Rd Suite 116, Homewood, AL 35209"},
+  {name:"Leafly Boba Bar",rating:9.0,city:"Birmingham, AL",address:"1227 1st Ave S #105, Birmingham, AL 35233"},
+  {name:"June Coffee",rating:9.0,city:"Birmingham, AL",address:"213 25th St N Suite C, Birmingham, AL 35203"},
+  {name:"Tandem Coffee Roasters",rating:8.8,city:"Portland, ME",address:"122 Anderson St, Portland, ME 04101"},
+  {name:"Gracenote Coffee Boston",rating:8.8,city:"Boston, MA",address:"108 Lincoln St, Boston, MA 02111"},
+  {name:"ONYX + ALABASTER Coffee Lounge",rating:8.8,city:"Franklin, TN",address:"234 Public Square B, Franklin, TN 37064"},
+  {name:"Never Coffee",rating:8.7,city:"Portland, OR",address:"4243 SE Belmont St #200, Portland, OR 97215"},
+  {name:"Water Avenue Coffee Company",rating:8.7,city:"Portland, OR",address:"1028 SE Water Ave #145, Portland, OR 97214"},
+  {name:"PERC Coffee",rating:8.7,city:"Savannah, GA",address:"1802 E Broad St, Savannah, GA 31401"},
+  {name:"Domestique Coffee - Satellite (Avondale)",rating:8.7,city:"Birmingham, AL",address:"200 41st St S, Birmingham, AL 35222"},
+  {name:"East Pole Coffee Co. (Birmingham)",rating:8.7,city:"Birmingham, AL",address:"1143 1st Ave S Suite 103, Birmingham, AL 35233"},
+  {name:"East Pole Coffee Co. (Ponce)",rating:8.7,city:"Atlanta, GA",address:"255 Ottley Dr NE #105, Atlanta, GA 30324"},
+  {name:"Tandem Coffee and Bakery",rating:8.6,city:"Portland, ME",address:"742 Congress St, Portland, ME 04102"},
+  {name:"Second State Coffee",rating:8.6,city:"Charleston, SC",address:"1630 Ashley Hall Rd, Charleston, SC 29407"},
+  {name:"Roseline Coffee Cafe & Roastery",rating:8.5,city:"Portland, OR",address:"321 NE Davis St, Portland, OR 97232"},
+  {name:"cafe babu",rating:8.5,city:"Nashville, TN",address:"1044 3rd Ave S, Nashville, TN 37210"},
+  {name:"Frisson Espresso",rating:8.5,city:"New York, NY",address:"326 W 47th St, New York, NY 10036"},
+  {name:"East Pole Coffee Co. (Buckhead)",rating:8.5,city:"Atlanta, GA",address:"255 Ottley Dr NE #105, Atlanta, GA 30324"},
+  {name:"Condesa Coffee",rating:8.5,city:"Atlanta, GA",address:"480 John Wesley Dobbs Ave NE #100, Atlanta, GA 30312"},
+  {name:"Guilder Coffee Company @ Powell's City of Books",rating:8.4,city:"Portland, OR",address:"1035 W Burnside St, Portland, OR 97209"},
+  {name:"Sleepyhead Coffee",rating:8.4,city:"Chattanooga, TN",address:"735 Broad St Suite 104, Chattanooga, TN 37402"},
+  {name:"Seeds Coffee Co. - Homewood",rating:8.4,city:"Homewood, AL",address:"174 Oxmoor Rd, Birmingham, AL 35209"},
+  {name:"Dawn Cafe",rating:8.3,city:"Chattanooga, TN",address:"730 Chestnut St, Chattanooga, TN 37402"},
+  {name:"Cala Coffee Downtown",rating:8.2,city:"Birmingham, AL",address:"1826 3rd Ave N #101, Birmingham, AL 35203"},
+  {name:"Birch Coffee",rating:8.2,city:"New York, NY",address:"134 1/2 E 62nd St, New York, NY 10065"},
+  {name:"Crema Coffee Roasters",rating:8.2,city:"Nashville, TN",address:"15 Hermitage Ave, Nashville, TN 37210"},
+  {name:"Revelator Coffee",rating:8.2,city:"Birmingham, AL",address:""},
+  {name:"Dancing Goats\u00ae Ponce City Market",rating:8.2,city:"Atlanta, GA",address:"650 North Avenue NE, Atlanta, GA 30308"},
+  {name:"The Lazy Llama Coffee Bar",rating:8.1,city:"Brooklyn, NY",address:""},
+  {name:"Orange Spot Coffee",rating:8.1,city:"North Charleston, SC",address:"1011 E Montague Ave, North Charleston, SC 29405"},
+  {name:"Valor Coffee",rating:8.1,city:"Alpharetta, GA",address:"44 Milton Ave, Alpharetta, GA 30009"},
+  {name:"Cala Coffee",rating:8.1,city:"Vestavia Hills, AL",address:"3950 Autumn Ln, Vestavia Hills, AL 35243"},
+  {name:"Deadstock Coffee Roasters",rating:8.0,city:"Portland, OR",address:"408 NW Couch St #408, Portland, OR 97209"},
+  {name:"Daysol Coffee Lab",rating:8.0,city:"Birmingham, AL",address:"2616 3rd Ave S, Birmingham, AL 35233"},
+  {name:"Paradeisos Coffee Company",rating:8.0,city:"Nashville, TN",address:"2813 West End Ave, Nashville, TN 37203"},
+  {name:"Coffee Project New York | Chelsea",rating:8.0,city:"New York, NY",address:"155 7th Ave, New York, NY 10011"},
+  {name:"Spiller Park Coffee",rating:8.0,city:"Atlanta, GA",address:"999 Peachtree St NE #180, Atlanta, GA 30309"},
+  {name:"Ten Thousand Coffee",rating:8.0,city:"New York, NY",address:"1410 Broadway Unit 105, New York, NY 10018"},
+  {name:"Prevail Union | BHM",rating:8.0,city:"Birmingham, AL",address:"420 20th St N Suite 125, Birmingham, AL 35203"},
+  {name:"Caveat Coffee",rating:7.9,city:"Homewood, AL",address:"2832 Linden Ave, Homewood, AL 35209"},
+  {name:"Two Stroke Coffee Co.",rating:7.8,city:"Portland, OR",address:"8517 N Lombard St, Portland, OR 97203"},
+  {name:"Maria's Java Sun",rating:7.8,city:"Marblehead, MA",address:"35 Atlantic Ave, Marblehead, MA 01945"},
+  {name:"Butler Bakeshop & Espresso Bar",rating:7.8,city:"New York, NY",address:"177 Lafayette St, New York, NY 10013"},
+  {name:"For Five Coffee Times Square",rating:7.8,city:"New York, NY",address:"117 W 46th St, New York, NY 10036"},
+  {name:"In\u00e8s",rating:7.8,city:"New York, NY",address:""},
+  {name:"8th & Roast",rating:7.6,city:"Nashville, TN",address:"2108 8th Ave S, Nashville, TN 37204"},
+  {name:"FILTER-Coffee Parlor",rating:7.6,city:"Birmingham, AL",address:"1927 11th Ave S, Birmingham, AL 35205"},
+  {name:"Bagels by the Sea",rating:7.5,city:"Seaside, OR",address:"210 S Holladay Dr, Seaside, OR 97138"},
+  {name:"Equator Coffees",rating:7.5,city:"San Francisco, CA",address:"2 Marina Blvd, San Francisco, CA 94123"},
+  {name:"Tatte Bakery & Cafe",rating:7.5,city:"Boston, MA",address:"399 Boylston St, Boston, MA 02116"},
+  {name:"Blank Street Coffee",rating:7.5,city:"New York, NY",address:"127 E 23rd St, New York, NY 10010"},
+  {name:"Bandit P\u00e2tisserie",rating:7.5,city:"Birmingham, AL",address:"2323 1st Ave N, Birmingham, AL 35203"},
+  {name:"Westville Dumbo",rating:7.4,city:"Brooklyn, NY",address:""},
+  {name:"Kaffee Vonsolln",rating:7.3,city:"Portsmouth, NH",address:"79 Daniel St, Portsmouth, NH 03801"},
+  {name:"Clerks Coffee Company",rating:7.3,city:"Charleston, SC",address:"181 Church St, Charleston, SC 29401"},
+  {name:"Church Street Coffee & Books",rating:7.2,city:"Mountain Brook, AL",address:"81 Church St, Mountain Brook, AL 35213"},
+  {name:"Maple Avenue Coffee House",rating:7.2,city:"Trussville, AL",address:"110 Maple Ave, Trussville, AL 35173"},
+  {name:"Frothy Monkey (Nashville)",rating:7.1,city:"Nashville, TN",address:"235 Rep. John Lewis Way N, Nashville, TN 37219"},
+  {name:"Front Street Coffeehouse",rating:7.0,city:"Salem, MA",address:"20 Front St, Salem, MA 01970"},
+  {name:"Baba Java Coffee - Homewood",rating:7.0,city:"Homewood, AL",address:"817 Green Springs Hwy Suite 109, Homewood, AL 35209"},
+  {name:"IL Cortile",rating:7.0,city:"New York, NY",address:""},
+  {name:"NOA Cafe",rating:7.0,city:"Portsmouth, NH",address:"86 Congress Street, Portsmouth, NH 03801"},
+  {name:"Honest Coffee Roasters (Nashville)",rating:6.9,city:"Nashville, TN",address:"3820 Charlotte Ave #135, Nashville, TN 37209"},
+  {name:"Santos Coffee Homewood",rating:6.9,city:"Homewood, AL",address:"2908 18th St S, Homewood, AL 35209"},
+  {name:"Frothy Monkey (Chattanooga)",rating:6.8,city:"Chattanooga, TN",address:"1400 Market St, Chattanooga, TN 37402"},
+  {name:"Baba Java Coffee (Hoover)",rating:6.8,city:"Hoover, AL",address:"4730 Chace Cir #124, Birmingham, AL 35244"},
+  {name:"Java Burrito Company",rating:6.7,city:"Savannah, GA",address:"420 E Broughton St, Savannah, GA 31401"},
+  {name:"2 Birds Coffee And Cafe",rating:6.7,city:"Miramar Beach, FL",address:"80 Seascape Dr, Miramar Beach, FL 32550"},
+  {name:"Stimulus Coffee + Bakery",rating:6.5,city:"Pacific City, OR",address:"33105 Cape Kiwanda Dr, Pacific City, OR 97135"},
+  {name:"High Five Coffee",rating:6.5,city:"Asheville, NC",address:"190 Broadway St Unit 102, Asheville, NC 28801"},
+  {name:"The Gallery Espresso",rating:6.5,city:"Savannah, GA",address:"234 Bull St, Savannah, GA 31401"},
+  {name:"Frothy Monkey (Birmingham)",rating:6.5,city:"Birmingham, AL",address:"2320 2nd Ave N, Birmingham, AL 35203"},
+  {name:"Cold Water & Coffee",rating:6.0,city:"Pacific City, OR",address:"34950 Brooten Rd Suite B-3, Pacific City, OR 97135"},
+  {name:"Honest Coffee Roasters (Birmingham)",rating:6.0,city:"Birmingham, AL",address:"114 Clinton Ave E #106, Huntsville, AL 35801"},
+  {name:"Sessions Stand",rating:6.0,city:"Marietta, GA",address:"397 Sessions St NW #200, Marietta, GA 30060"},
+  {name:"Brown Fox Coffee",rating:6.0,city:"Mt. Pleasant, SC",address:"307 Simmons St, Mt Pleasant, SC 29464"},
+  {name:"Bad Ass Coffee",rating:5.8,city:"Orange Beach, AL",address:"24824 Canal Rd Suite A, Orange Beach, AL 36561"},
+  {name:"OHenry's Coffees (2nd location)",rating:5.8,city:"Birmingham, AL",address:"2915 Highland Ave, Birmingham, AL 35205"},
+  {name:"Vintage Coffee Cafe",rating:5.7,city:"Mt. Pleasant, SC",address:"219 Simmons St, Mt Pleasant, SC 29464"},
+  {name:"OHenry's Coffees (Highland Ave)",rating:5.7,city:"Birmingham, AL",address:"2915 Highland Ave, Birmingham, AL 35205"},
+  {name:"OHenry's Coffees (3rd location)",rating:5.7,city:"Birmingham, AL",address:"2915 Highland Ave, Birmingham, AL 35205"},
+  {name:"Santos Coffee Hoover",rating:5.5,city:"Hoover, AL",address:"1021 Brocks Gap Pkwy Suit 101, Hoover, AL 35244"},
+  {name:"Red Mountain Expresso",rating:5.4,city:"Homewood, AL",address:"2601 18th St S, Homewood, AL 35209"},
+  {name:"Gatos and Beans",rating:4.1,city:"Birmingham, AL",address:"4348 3rd Ct S, Birmingham, AL 35222"},
+  {name:"Satterfield's Restaurant",rating:1.0,city:"Birmingham, AL",address:"3161 Cahaba Heights Rd, Birmingham, AL 35243"}
+];
+
+let shops = [];
+let extras = [];
+let activeCity = 'All';
+let editingId = null;
+
+function ratingClass(r) {
+  if (r >= 9) return 'r-top';
+  if (r >= 8) return 'r-high';
+  if (r >= 7) return 'r-mid';
+  if (r >= 6) return 'r-low';
+  return 'r-base';
+}
+
+function barClass(r) {
+  if (r >= 9) return 'bar-top';
+  if (r >= 8) return 'bar-high';
+  if (r >= 7) return 'bar-mid';
+  if (r >= 6) return 'bar-low';
+  return 'bar-base';
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split('\t').map(h => h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const cols = line.split('\t').map(c => c.trim().replace(/^"|"$/g,''));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = cols[i] || '');
+    const rating = parseFloat(obj['Your Rating'] || obj['rating'] || '0');
+    return {
+      id: Math.random().toString(36).slice(2),
+      name: obj['Name'] || obj['name'] || '',
+      rating: isNaN(rating) ? 0 : rating,
+      city: obj['City / State'] || obj['city'] || '',
+      address: obj['Address'] || obj['address'] || '',
+      date: obj['Date'] || obj['date'] || '',
+      notes: obj['Notes'] || obj['notes'] || ''
+    };
+  }).filter(s => s.name && s.rating > 0);
+}
+
+async function loadData() {
+  try {
+    const r = await fetch(CSV_URL + '&t=' + Date.now());
+    if (r.ok) {
+      const text = await r.text();
+      shops = parseCSV(text);
+      if (shops.length < 5) throw new Error('too few');
+    } else throw new Error('fetch failed');
+  } catch(e) {
+    shops = FALLBACK.map((s, i) => ({...s, id: String(i), date:'', notes:''}));
+  }
+  loadExtras();
+  updateStats();
+  buildCityPills();
+  render();
+  document.getElementById('header-meta').textContent = shops.length + extras.length + ' shops';
+}
+
+function loadExtras() {
+  try {
+    const stored = localStorage.getItem('coffee-extras');
+    extras = stored ? JSON.parse(stored) : [];
+  } catch(e) { extras = []; }
+}
+
+function saveExtras() {
+  try { localStorage.setItem('coffee-extras', JSON.stringify(extras)); } catch(e) {}
+}
+
+function allShops() {
+  return [...shops, ...extras];
+}
+
+function updateStats() {
+  const all = allShops();
+  const avg = all.reduce((s,x) => s + x.rating, 0) / all.length;
+  const cities = new Set(all.map(s => s.city).filter(Boolean));
+  const nines = all.filter(s => s.rating >= 9).length;
+  document.getElementById('stat-total').textContent = all.length;
+  document.getElementById('stat-avg').textContent = avg.toFixed(1);
+  document.getElementById('stat-top').textContent = cities.size;
+  document.getElementById('stat-9plus').textContent = nines;
+  document.getElementById('header-meta').textContent = all.length + ' shops';
+}
+
+function buildCityPills() {
+  const all = allShops();
+  const cities = ['All', ...new Set(all.map(s => s.city).filter(Boolean).sort())];
+  document.getElementById('city-pills').innerHTML = cities.map(c =>
+    `<button class="pill${c===activeCity?' active':''}" onclick="setCity(${JSON.stringify(c)})">${c}</button>`
+  ).join('');
+}
+
+function setCity(c) {
+  activeCity = c;
+  document.querySelectorAll('.pill').forEach(b => b.classList.toggle('active', b.textContent === c));
+  render();
+}
+
+function getFiltered() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const sort = document.getElementById('sort').value;
+  let list = allShops().filter(s => {
+    const m = !q || s.name.toLowerCase().includes(q) || (s.city||'').toLowerCase().includes(q) || (s.address||'').toLowerCase().includes(q);
+    const cm = activeCity === 'All' || s.city === activeCity;
+    return m && cm;
+  });
+  if (sort === 'score') list.sort((a,b) => b.rating - a.rating);
+  else if (sort === 'name') list.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sort === 'city') list.sort((a,b) => (a.city||'').localeCompare(b.city||''));
+  else list.sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  return list;
+}
+
+function render() {
+  const sort = document.getElementById('sort').value;
+  const list = getFiltered();
+  if (!list.length) {
+    document.getElementById('list-container').innerHTML = '<div class="empty"><svg viewBox="0 0 24 24"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg><p>No shops found</p></div>';
+    return;
+  }
+
+  let html = '';
+  if (sort === 'score') {
+    const tiers = [
+      {label: '9 and above', min: 9, max: 11},
+      {label: '8 — 8.9', min: 8, max: 9},
+      {label: '7 — 7.9', min: 7, max: 8},
+      {label: '6 — 6.9', min: 6, max: 7},
+      {label: 'Under 6', min: 0, max: 6}
+    ];
+    tiers.forEach(t => {
+      const tier = list.filter(s => s.rating >= t.min && s.rating < t.max);
+      if (!tier.length) return;
+      html += `<div class="section-head"><h2>${t.label}</h2><span class="section-count">${tier.length}</span></div>`;
+      html += '<div class="grid">' + tier.map(s => card(s)).join('') + '</div>';
+    });
+  } else {
+    html += '<div class="grid">' + list.map(s => card(s)).join('') + '</div>';
+  }
+  document.getElementById('list-container').innerHTML = html;
+}
+
+function card(s) {
+  const barW = Math.round((s.rating / 10) * 100);
+  return `<div class="card" onclick="openDetail(${JSON.stringify(s.id)})">
+    <div class="card-rating ${ratingClass(s.rating)}">${s.rating.toFixed(1)}<span>/10</span></div>
+    <div class="card-name">${esc(s.name)}</div>
+    <div class="card-city">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      ${esc(s.city||'—')}
+    </div>
+    ${s.date ? `<div class="card-date">${s.date}</div>` : ''}
+    ${s.notes ? `<div class="card-note">${esc(s.notes)}</div>` : ''}
+    <div class="card-bar ${barClass(s.rating)}" style="width:${barW}%"></div>
+  </div>`;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function openDetail(id) {
+  const s = allShops().find(x => x.id === id);
+  if (!s) return;
+  const mapsUrl = s.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.address)}` : null;
+  const isExtra = extras.some(x => x.id === id);
+  document.getElementById('detail-modal').innerHTML = `
+    <div class="modal-header">
+      <div class="modal-rating ${ratingClass(s.rating)}">${s.rating.toFixed(1)}<span style="font-family:var(--font-body);font-size:18px;color:var(--ink-3);font-weight:300">/10</span></div>
+      <button class="modal-close" onclick="closeDetail()">✕</button>
+    </div>
+    <div class="modal-name">${esc(s.name)}</div>
+    <div class="modal-meta">
+      <div class="modal-meta-row">
+        <svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>${esc(s.city||'—')}</span>
+      </div>
+      ${s.address ? `<div class="modal-meta-row"><svg viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>${esc(s.address)}</span></div>` : ''}
+      ${s.date ? `<div class="modal-meta-row"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg><span>${esc(s.date)}</span></div>` : ''}
+    </div>
+    ${s.notes ? `<div class="modal-notes-label">Notes</div><div class="modal-notes">${esc(s.notes)}</div>` : ''}
+    <div class="modal-actions">
+      ${mapsUrl ? `<a class="btn" href="${mapsUrl}" target="_blank"><svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Open in Maps</a>` : ''}
+      ${isExtra ? `<button class="btn" onclick="openEdit(${JSON.stringify(id)})"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>` : ''}
+      <div class="btn-spacer"></div>
+      ${isExtra ? `<button class="btn btn-danger" onclick="deleteShop(${JSON.stringify(id)})"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>Delete</button>` : ''}
+    </div>`;
+  document.getElementById('detail-overlay').classList.add('open');
+}
+
+function closeDetail() { document.getElementById('detail-overlay').classList.remove('open'); }
+
+function openAdd() {
+  editingId = null;
+  document.getElementById('edit-title').textContent = 'Add a coffee shop';
+  ['name','rating','date','city','state','address','notes'].forEach(f => {
+    const el = document.getElementById('f-'+f);
+    if (el) el.value = '';
+  });
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function openEdit(id) {
+  closeDetail();
+  const s = extras.find(x => x.id === id);
+  if (!s) return;
+  editingId = id;
+  document.getElementById('edit-title').textContent = 'Edit shop';
+  document.getElementById('f-name').value = s.name;
+  document.getElementById('f-rating').value = s.rating;
+  document.getElementById('f-date').value = s.date || '';
+  const parts = (s.city || '').split(', ');
+  document.getElementById('f-city').value = parts[0] || '';
+  document.getElementById('f-state').value = parts[1] || '';
+  document.getElementById('f-address').value = s.address || '';
+  document.getElementById('f-notes').value = s.notes || '';
+  document.getElementById('edit-overlay').classList.add('open');
+}
+
+function closeEdit() { document.getElementById('edit-overlay').classList.remove('open'); editingId = null; }
+
+function saveShop() {
+  const name = document.getElementById('f-name').value.trim();
+  const rating = parseFloat(document.getElementById('f-rating').value);
+  if (!name || isNaN(rating)) return;
+  const city = [document.getElementById('f-city').value.trim(), document.getElementById('f-state').value.trim()].filter(Boolean).join(', ');
+  const shop = { name, rating, city, address: document.getElementById('f-address').value.trim(), date: document.getElementById('f-date').value, notes: document.getElementById('f-notes').value.trim() };
+  if (editingId) {
+    const idx = extras.findIndex(x => x.id === editingId);
+    extras[idx] = { ...extras[idx], ...shop };
+  } else {
+    shop.id = 'extra-' + Date.now();
+    extras.push(shop);
+  }
+  saveExtras();
+  closeEdit();
+  updateStats();
+  buildCityPills();
+  render();
+}
+
+function deleteShop(id) {
+  extras = extras.filter(x => x.id !== id);
+  saveExtras();
+  closeDetail();
+  updateStats();
+  buildCityPills();
+  render();
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('sort').addEventListener('change', render);
+document.getElementById('detail-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeDetail(); });
+document.getElementById('edit-overlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeEdit(); });
+
+loadData();
+</script>
+</body>
+</html>
