@@ -729,6 +729,10 @@
         <div class="stat"><span class="stat-num" id="stat-top">—</span><span class="stat-label">States</span></div>
         <div class="stat-divider"></div>
         <div class="stat"><span class="stat-num" id="stat-9plus">—</span><span class="stat-label">Rated 9+</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" id="stat-best-state" style="font-size:20px;">—</span><span class="stat-label">Best state</span></div>
+        <div class="stat-divider"></div>
+        <div class="stat"><span class="stat-num" id="stat-best-city" style="font-size:20px;">—</span><span class="stat-label">Best city</span></div>
       </div>
     </div>
   </div>
@@ -930,16 +934,58 @@ function allShops() {
   return [...shops, ...extras];
 }
 
+function bayesianBest(groups, overallAvg, minSamples) {
+  // groups: Map of label -> array of ratings
+  let best = null, bestScore = -Infinity;
+  groups.forEach((ratings, label) => {
+    const v = ratings.length;
+    const R = ratings.reduce((s,x) => s+x, 0) / v;
+    const weighted = (v / (v + minSamples)) * R + (minSamples / (v + minSamples)) * overallAvg;
+    if (weighted > bestScore) { bestScore = weighted; best = label; }
+  });
+  return best;
+}
+
 function updateStats() {
   const all = allShops();
+  const active = all.filter(s => !isDefunct(s));
   const avg = all.reduce((s,x) => s + x.rating, 0) / all.length;
   const states = new Set(all.map(s => s.state).filter(Boolean));
-  const nines = all.filter(s => s.rating >= 9 && !isDefunct(s)).length;
+  const nines = active.filter(s => s.rating >= 9).length;
   document.getElementById('stat-total').textContent = all.length;
   document.getElementById('stat-avg').textContent = avg.toFixed(1);
   document.getElementById('stat-top').textContent = states.size;
   document.getElementById('stat-9plus').textContent = nines;
   document.getElementById('header-meta').textContent = all.length + ' shops';
+
+  // Best State / Best City — Bayesian average guards against small-sample bias
+  // (e.g. one 10/10 visit in a state you've only been to once shouldn't beat
+  // a state with twenty visits averaging 9.2). Closed shops are excluded since
+  // they're not useful "best place to go" recommendations.
+  // minSamples acts as a "weight" of fake average-rated visits pulled into each
+  // group; raise it if single great visits are still winning too easily.
+  const MIN_SAMPLES_STATE = 3;
+  const MIN_SAMPLES_CITY = 2;
+  const activeAvg = active.reduce((s,x) => s + x.rating, 0) / active.length;
+
+  const byState = new Map();
+  const byCity = new Map();
+  active.forEach(s => {
+    if (s.state) {
+      if (!byState.has(s.state)) byState.set(s.state, []);
+      byState.get(s.state).push(s.rating);
+    }
+    if (s.cityState) {
+      if (!byCity.has(s.cityState)) byCity.set(s.cityState, []);
+      byCity.get(s.cityState).push(s.rating);
+    }
+  });
+
+  const bestState = byState.size ? bayesianBest(byState, activeAvg, MIN_SAMPLES_STATE) : null;
+  const bestCity = byCity.size ? bayesianBest(byCity, activeAvg, MIN_SAMPLES_CITY) : null;
+
+  document.getElementById('stat-best-state').textContent = bestState || '—';
+  document.getElementById('stat-best-city').textContent = bestCity || '—';
 }
 
 function buildCityPills() {
