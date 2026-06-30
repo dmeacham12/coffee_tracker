@@ -789,100 +789,6 @@
 // Leave empty ('') to show the input screen instead.
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRDAjCkm2vo1AzSw-8pMr0suwvExMtnH-pEff0Dn1GmX0CMZcZwDSVkh9z86rSvRA/pub?output=csv';
 
-const FALLBACK = [
-  {name:"Domestique Coffee - Panache (Five Points South)",rating:9.3,city:"Birmingham, AL",address:"1024 20th St S #103, Birmingham, AL 35205"},
-  {name:"George Howell Coffee",rating:9.2,city:"Boston, MA",address:"505 Washington St, Boston, MA 02111"},
-  {name:"Conwell Coffee Hall",rating:9.2,city:"New York, NY",address:"6 Hanover St, New York, NY 10005"},
-  {name:"Domestique Coffee - Dawn Patrol (Homewood)",rating:9.2,city:"Homewood, AL",address:"1724 27th Ct S, Birmingham, AL 35209"},
-  {name:"Daily Edition",rating:9.1,city:"Homewood, AL",address:"186 Oxmoor Rd Suite 116, Homewood, AL 35209"},
-  {name:"Leafly Boba Bar",rating:9.0,city:"Birmingham, AL",address:"1227 1st Ave S #105, Birmingham, AL 35233"},
-  {name:"June Coffee",rating:9.0,city:"Birmingham, AL",address:"213 25th St N Suite C, Birmingham, AL 35203"},
-  {name:"Tandem Coffee Roasters",rating:8.8,city:"Portland, ME",address:"122 Anderson St, Portland, ME 04101"},
-  {name:"Gracenote Coffee Boston",rating:8.8,city:"Boston, MA",address:"108 Lincoln St, Boston, MA 02111"},
-  {name:"ONYX + ALABASTER Coffee Lounge",rating:8.8,city:"Franklin, TN",address:"234 Public Square B, Franklin, TN 37064"},
-  {name:"Never Coffee",rating:8.7,city:"Portland, OR",address:"4243 SE Belmont St #200, Portland, OR 97215"},
-  {name:"Water Avenue Coffee Company",rating:8.7,city:"Portland, OR",address:"1028 SE Water Ave #145, Portland, OR 97214"},
-  {name:"PERC Coffee",rating:8.7,city:"Savannah, GA",address:"1802 E Broad St, Savannah, GA 31401"},
-  {name:"Domestique Coffee - Satellite (Avondale)",rating:8.7,city:"Birmingham, AL",address:"200 41st St S, Birmingham, AL 35222"},
-  {name:"East Pole Coffee Co. (Birmingham)",rating:8.7,city:"Birmingham, AL",address:"1143 1st Ave S Suite 103, Birmingham, AL 35233"},
-  {name:"East Pole Coffee Co. (Ponce)",rating:8.7,city:"Atlanta, GA",address:"255 Ottley Dr NE #105, Atlanta, GA 30324"},
-  {name:"Tandem Coffee and Bakery",rating:8.6,city:"Portland, ME",address:"742 Congress St, Portland, ME 04102"},
-  {name:"Second State Coffee",rating:8.6,city:"Charleston, SC",address:"1630 Ashley Hall Rd, Charleston, SC 29407"},
-  {name:"Roseline Coffee Cafe & Roastery",rating:8.5,city:"Portland, OR",address:"321 NE Davis St, Portland, OR 97232"},
-  {name:"cafe babu",rating:8.5,city:"Nashville, TN",address:"1044 3rd Ave S, Nashville, TN 37210"},
-  {name:"Frisson Espresso",rating:8.5,city:"New York, NY",address:"326 W 47th St, New York, NY 10036"},
-  {name:"East Pole Coffee Co. (Buckhead)",rating:8.5,city:"Atlanta, GA",address:"255 Ottley Dr NE #105, Atlanta, GA 30324"},
-  {name:"Condesa Coffee",rating:8.5,city:"Atlanta, GA",address:"480 John Wesley Dobbs Ave NE #100, Atlanta, GA 30312"},
-  {name:"Guilder Coffee Company @ Powell's City of Books",rating:8.4,city:"Portland, OR",address:"1035 W Burnside St, Portland, OR 97209"},
-  {name:"Sleepyhead Coffee",rating:8.4,city:"Chattanooga, TN",address:"735 Broad St Suite 104, Chattanooga, TN 37402"},
-  {name:"Seeds Coffee Co. - Homewood",rating:8.4,city:"Homewood, AL",address:"174 Oxmoor Rd, Birmingham, AL 35209"},
-  {name:"Dawn Cafe",rating:8.3,city:"Chattanooga, TN",address:"730 Chestnut St, Chattanooga, TN 37402"},
-  {name:"Cala Coffee Downtown",rating:8.2,city:"Birmingham, AL",address:"1826 3rd Ave N #101, Birmingham, AL 35203"},
-  {name:"Birch Coffee",rating:8.2,city:"New York, NY",address:"134 1/2 E 62nd St, New York, NY 10065"},
-  {name:"Crema Coffee Roasters",rating:8.2,city:"Nashville, TN",address:"15 Hermitage Ave, Nashville, TN 37210"},
-  {name:"Revelator Coffee",rating:8.2,city:"Birmingham, AL",address:""},
-  {name:"Dancing Goats® Ponce City Market",rating:8.2,city:"Atlanta, GA",address:"650 North Avenue NE, Atlanta, GA 30308"},
-  {name:"The Lazy Llama Coffee Bar",rating:8.1,city:"Brooklyn, NY",address:""},
-  {name:"Orange Spot Coffee",rating:8.1,city:"North Charleston, SC",address:"1011 E Montague Ave, North Charleston, SC 29405"},
-  {name:"Valor Coffee",rating:8.1,city:"Alpharetta, GA",address:"44 Milton Ave, Alpharetta, GA 30009"},
-  {name:"Cala Coffee",rating:8.1,city:"Vestavia Hills, AL",address:"3950 Autumn Ln, Vestavia Hills, AL 35243"},
-  {name:"Deadstock Coffee Roasters",rating:8.0,city:"Portland, OR",address:"408 NW Couch St #408, Portland, OR 97209"},
-  {name:"Daysol Coffee Lab",rating:8.0,city:"Birmingham, AL",address:"2616 3rd Ave S, Birmingham, AL 35233"},
-  {name:"Paradeisos Coffee Company",rating:8.0,city:"Nashville, TN",address:"2813 West End Ave, Nashville, TN 37203"},
-  {name:"Coffee Project New York | Chelsea",rating:8.0,city:"New York, NY",address:"155 7th Ave, New York, NY 10011"},
-  {name:"Spiller Park Coffee",rating:8.0,city:"Atlanta, GA",address:"999 Peachtree St NE #180, Atlanta, GA 30309"},
-  {name:"Ten Thousand Coffee",rating:8.0,city:"New York, NY",address:"1410 Broadway Unit 105, New York, NY 10018"},
-  {name:"Prevail Union | BHM",rating:8.0,city:"Birmingham, AL",address:"420 20th St N Suite 125, Birmingham, AL 35203"},
-  {name:"Caveat Coffee",rating:7.9,city:"Homewood, AL",address:"2832 Linden Ave, Homewood, AL 35209"},
-  {name:"Two Stroke Coffee Co.",rating:7.8,city:"Portland, OR",address:"8517 N Lombard St, Portland, OR 97203"},
-  {name:"Maria's Java Sun",rating:7.8,city:"Marblehead, MA",address:"35 Atlantic Ave, Marblehead, MA 01945"},
-  {name:"Butler Bakeshop & Espresso Bar",rating:7.8,city:"New York, NY",address:"177 Lafayette St, New York, NY 10013"},
-  {name:"For Five Coffee Times Square",rating:7.8,city:"New York, NY",address:"117 W 46th St, New York, NY 10036"},
-  {name:"Inès",rating:7.8,city:"New York, NY",address:""},
-  {name:"8th & Roast",rating:7.6,city:"Nashville, TN",address:"2108 8th Ave S, Nashville, TN 37204"},
-  {name:"FILTER-Coffee Parlor",rating:7.6,city:"Birmingham, AL",address:"1927 11th Ave S, Birmingham, AL 35205"},
-  {name:"Bagels by the Sea",rating:7.5,city:"Seaside, OR",address:"210 S Holladay Dr, Seaside, OR 97138"},
-  {name:"Equator Coffees",rating:7.5,city:"San Francisco, CA",address:"2 Marina Blvd, San Francisco, CA 94123"},
-  {name:"Tatte Bakery & Cafe",rating:7.5,city:"Boston, MA",address:"399 Boylston St, Boston, MA 02116"},
-  {name:"Blank Street Coffee",rating:7.5,city:"New York, NY",address:"127 E 23rd St, New York, NY 10010"},
-  {name:"Bandit Pâtisserie",rating:7.5,city:"Birmingham, AL",address:"2323 1st Ave N, Birmingham, AL 35203"},
-  {name:"Westville Dumbo",rating:7.4,city:"Brooklyn, NY",address:""},
-  {name:"Kaffee Vonsolln",rating:7.3,city:"Portsmouth, NH",address:"79 Daniel St, Portsmouth, NH 03801"},
-  {name:"Clerks Coffee Company",rating:7.3,city:"Charleston, SC",address:"181 Church St, Charleston, SC 29401"},
-  {name:"Church Street Coffee & Books",rating:7.2,city:"Mountain Brook, AL",address:"81 Church St, Mountain Brook, AL 35213"},
-  {name:"Maple Avenue Coffee House",rating:7.2,city:"Trussville, AL",address:"110 Maple Ave, Trussville, AL 35173"},
-  {name:"Frothy Monkey (Nashville)",rating:7.1,city:"Nashville, TN",address:"235 Rep. John Lewis Way N, Nashville, TN 37219"},
-  {name:"Front Street Coffeehouse",rating:7.0,city:"Salem, MA",address:"20 Front St, Salem, MA 01970"},
-  {name:"Baba Java Coffee - Homewood",rating:7.0,city:"Homewood, AL",address:"817 Green Springs Hwy Suite 109, Homewood, AL 35209"},
-  {name:"IL Cortile",rating:7.0,city:"New York, NY",address:""},
-  {name:"NOA Cafe",rating:7.0,city:"Portsmouth, NH",address:"86 Congress Street, Portsmouth, NH 03801"},
-  {name:"Honest Coffee Roasters (Nashville)",rating:6.9,city:"Nashville, TN",address:"3820 Charlotte Ave #135, Nashville, TN 37209"},
-  {name:"Santos Coffee Homewood",rating:6.9,city:"Homewood, AL",address:"2908 18th St S, Homewood, AL 35209"},
-  {name:"Frothy Monkey (Chattanooga)",rating:6.8,city:"Chattanooga, TN",address:"1400 Market St, Chattanooga, TN 37402"},
-  {name:"Baba Java Coffee (Hoover)",rating:6.8,city:"Hoover, AL",address:"4730 Chace Cir #124, Birmingham, AL 35244"},
-  {name:"Java Burrito Company",rating:6.7,city:"Savannah, GA",address:"420 E Broughton St, Savannah, GA 31401"},
-  {name:"2 Birds Coffee And Cafe",rating:6.7,city:"Miramar Beach, FL",address:"80 Seascape Dr, Miramar Beach, FL 32550"},
-  {name:"Stimulus Coffee + Bakery",rating:6.5,city:"Pacific City, OR",address:"33105 Cape Kiwanda Dr, Pacific City, OR 97135"},
-  {name:"High Five Coffee",rating:6.5,city:"Asheville, NC",address:"190 Broadway St Unit 102, Asheville, NC 28801"},
-  {name:"The Gallery Espresso",rating:6.5,city:"Savannah, GA",address:"234 Bull St, Savannah, GA 31401"},
-  {name:"Frothy Monkey (Birmingham)",rating:6.5,city:"Birmingham, AL",address:"2320 2nd Ave N, Birmingham, AL 35203"},
-  {name:"Cold Water & Coffee",rating:6.0,city:"Pacific City, OR",address:"34950 Brooten Rd Suite B-3, Pacific City, OR 97135"},
-  {name:"Honest Coffee Roasters (Birmingham)",rating:6.0,city:"Birmingham, AL",address:"114 Clinton Ave E #106, Huntsville, AL 35801"},
-  {name:"Sessions Stand",rating:6.0,city:"Marietta, GA",address:"397 Sessions St NW #200, Marietta, GA 30060"},
-  {name:"Brown Fox Coffee",rating:6.0,city:"Mt. Pleasant, SC",address:"307 Simmons St, Mt Pleasant, SC 29464"},
-  {name:"Bad Ass Coffee",rating:5.8,city:"Orange Beach, AL",address:"24824 Canal Rd Suite A, Orange Beach, AL 36561"},
-  {name:"OHenry's Coffees (2nd location)",rating:5.8,city:"Birmingham, AL",address:"2915 Highland Ave, Birmingham, AL 35205"},
-  {name:"Vintage Coffee Cafe",rating:5.7,city:"Mt. Pleasant, SC",address:"219 Simmons St, Mt Pleasant, SC 29464"},
-  {name:"OHenry's Coffees (Highland Ave)",rating:5.7,city:"Birmingham, AL",address:"2915 Highland Ave, Birmingham, AL 35205"},
-  {name:"OHenry's Coffees (3rd location)",rating:5.7,city:"Birmingham, AL",address:"2915 Highland Ave, Birmingham, AL 35205"},
-  {name:"Santos Coffee Hoover",rating:5.5,city:"Hoover, AL",address:"1021 Brocks Gap Pkwy Suit 101, Hoover, AL 35244"},
-  {name:"Red Mountain Expresso",rating:5.4,city:"Homewood, AL",address:"2601 18th St S, Homewood, AL 35209"},
-  {name:"Gatos and Beans",rating:4.1,city:"Birmingham, AL",address:"4348 3rd Ct S, Birmingham, AL 35222"},
-  {name:"Satterfield's Restaurant",rating:1.0,city:"Birmingham, AL",address:"3161 Cahaba Heights Rd, Birmingham, AL 35243"}
-];
-
-
-
 let shops = [];
 let extras = [];
 let activeState = 'All';
@@ -1028,7 +934,7 @@ function updateStats() {
   const all = allShops();
   const avg = all.reduce((s,x) => s + x.rating, 0) / all.length;
   const states = new Set(all.map(s => s.state).filter(Boolean));
-  const nines = all.filter(s => s.rating >= 9).length;
+  const nines = all.filter(s => s.rating >= 9 && !isDefunct(s)).length;
   document.getElementById('stat-total').textContent = all.length;
   document.getElementById('stat-avg').textContent = avg.toFixed(1);
   document.getElementById('stat-top').textContent = states.size;
