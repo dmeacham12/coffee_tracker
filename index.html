@@ -831,10 +831,37 @@ function parseCSV(text) {
     const obj = {};
     headers.forEach((h, i) => { obj[h] = (cols[i] || '').replace(/^"|"$/g, '').trim(); });
     const rating = parseFloat(obj['your rating'] || obj['rating'] || '0');
-    const cityState = obj['city / state'] || obj['city'] || '';
-    const parts = cityState.split(',').map(p => p.trim());
-    const city = parts[0] || '';
-    const state = parts[1] || '';
+
+    // Extract city and state from address (e.g. "123 Main St, Birmingham, AL 35203")
+    // Fall back to explicit City/State column if address parsing fails
+    const address = obj['address'] || '';
+    let city = '', state = '', cityState = obj['city / state'] || obj['city'] || '';
+
+    if (address) {
+      // Split address by comma — typical format: Street, City, ST ZIP
+      const addrParts = address.split(',').map(p => p.trim());
+      if (addrParts.length >= 3) {
+        // City is second-to-last, state+zip is last
+        city = addrParts[addrParts.length - 2];
+        const lastPart = addrParts[addrParts.length - 1].trim();
+        // Extract just the state abbreviation (first word before the zip)
+        const stateMatch = lastPart.match(/^([A-Z]{2})\s*\d*/);
+        state = stateMatch ? stateMatch[1] : lastPart;
+        cityState = city + ', ' + state;
+      } else if (addrParts.length === 2) {
+        city = addrParts[0];
+        state = addrParts[1].trim().match(/^([A-Z]{2})/)?.[1] || addrParts[1];
+        cityState = city + ', ' + state;
+      }
+    }
+
+    // Fall back to explicit column if address parsing didn't yield a result
+    if (!city && cityState) {
+      const parts = cityState.split(',').map(p => p.trim());
+      city = parts[0] || '';
+      state = parts[1] || '';
+    }
+
     return {
       id: Math.random().toString(36).slice(2),
       name: obj['name'] || '',
@@ -842,7 +869,7 @@ function parseCSV(text) {
       city: city,
       state: state,
       cityState: cityState,
-      address: obj['address'] || '',
+      address: address,
       date: obj['date'] || '',
       notes: obj['notes'] || ''
     };
