@@ -274,69 +274,51 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    overflow: hidden;
-    display: flex;
-    flex-direction: row;
-    height: 200px;
+    padding: 1rem 1.1rem 0.9rem;
+    cursor: pointer;
     transition: border-color 0.15s, transform 0.1s;
     position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 248px;
   }
 
-  .card:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+  .card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
 
   .card-defunct { opacity: 0.55; background: var(--bg); }
   .card-defunct .card-bar { opacity: 0.25; }
 
-  .card-image {
-    width: 120px;
+  .card-rating {
+    font-family: var(--font-display);
+    font-size: 30px;
+    line-height: 1;
+    margin-bottom: 6px;
     flex-shrink: 0;
-    background: var(--surface2);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .card-image img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .card-image-ph { color: var(--ink-3); }
-
-  .card-body {
-    flex: 1;
-    padding: 12px 14px 10px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-width: 0;
   }
 
-  .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
+  .card-rating span {
+    font-family: var(--font-body);
+    font-size: 13px;
+    color: var(--ink-3);
+    font-weight: 300;
+  }
 
   .card-name {
     font-size: 13px;
     font-weight: 500;
     color: var(--ink);
     line-height: 1.35;
+    margin-bottom: 4px;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    flex: 1;
-    min-width: 0;
-  }
-
-  .card-rating {
-    font-family: var(--font-display);
-    font-size: 22px;
-    line-height: 1;
     flex-shrink: 0;
-    padding: 2px 8px;
-    border-radius: 6px;
   }
-  .card-rating span { font-family: var(--font-body); font-size: 10px; font-weight: 400; opacity: 0.7; }
-
-  .r-top  { background: #e8f5ee; color: #1a7a42; }
-  .r-high { background: #e8f5ee; color: #1a7a42; }
-  .r-mid  { background: #fef6e4; color: #a05c00; }
-  .r-low  { background: #fdecea; color: #a02020; }
 
   .card-city {
     font-size: 12px;
@@ -344,13 +326,21 @@
     display: flex;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
 
+  .card-date {
+    font-size: 11px;
+    color: var(--ink-3);
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
   .card-note {
-    margin-top: 6px;
+    margin-top: 8px;
     font-size: 12px;
     color: var(--ink-2);
     line-height: 1.4;
@@ -358,34 +348,26 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    flex: 1;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: auto;
-    padding-top: 8px;
     border-top: 1px solid var(--border);
+    padding-top: 8px;
   }
-
-  .card-date { font-size: 11px; color: var(--ink-3); }
 
   .card-bar {
     position: absolute;
     bottom: 0;
-    left: 120px;
+    left: 0;
     height: 3px;
     border-radius: 0 2px 0 0;
-    opacity: 0.4;
+    opacity: 0.55;
   }
 
   .card-nav-btn {
     display: inline-flex;
     align-items: center;
     gap: 5px;
-    padding: 4px 10px;
+    margin-top: auto;
+    align-self: flex-start;
+    padding: 5px 10px;
     border-radius: 6px;
     background: var(--accent-light);
     border: 1px solid #b8d9c4;
@@ -396,7 +378,6 @@
     cursor: pointer;
     text-decoration: none;
     transition: background 0.12s;
-    white-space: nowrap;
   }
   .card-nav-btn:hover { background: #d4eadb; }
   .card-nav-btn svg { width: 10px; height: 10px; stroke: currentColor; fill: none; stroke-width: 2.5; stroke-linecap: round; }
@@ -883,8 +864,7 @@ function parseCSV(text) {
       cityState: cityState,
       address: address,
       date: obj['date'] || '',
-      notes: obj['notes'] || '',
-      image: obj['image url'] || obj['image'] || obj['photo'] || obj['photo url'] || ''
+      notes: obj['notes'] || ''
     };
   }).filter(s => s.name && s.rating > 0);
 }
@@ -1122,27 +1102,17 @@ function card(s) {
   const mapsUrl = (!defunct && s.address)
     ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(s.address + ' ' + (s.cityState||s.city))}`
     : (!defunct && s.cityState) ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(s.name + ' ' + s.cityState)}` : null;
-  const imgHtml = s.image
-    ? `<img src="${esc(s.image)}" alt="${esc(s.name)}" loading="lazy" onerror="this.parentElement.innerHTML='<div class=card-image-ph><svg width=32 height=32 viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'1.5\' stroke-linecap=\'round\'><path d=\'M17 8h1a4 4 0 0 1 0 8h-1\'/><path d=\'M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z\'/></svg></div>'">`
-    : `<div class="card-image-ph"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/></svg></div>`;
   return `<div class="card${defunct ? ' card-defunct' : ''}">
-    <div class="card-image">${imgHtml}</div>
-    <div class="card-body">
-      <div class="card-top">
-        <div class="card-name">${esc(s.name)}</div>
-        <div class="card-rating ${ratingClass(s.rating)}">${s.rating.toFixed(1)}<span>/10</span></div>
-      </div>
-      <div class="card-city">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-        ${esc(s.cityState||s.city||'—')}
-      </div>
-      ${s.notes && !defunct ? `<div class="card-note">${esc(s.notes)}</div>` : ''}
-      <div class="card-footer">
-        <span class="card-date">${s.date || ''}</span>
-        ${mapsUrl ? `<a class="card-nav-btn" href="${mapsUrl}" target="_blank"><svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Take Me Here</a>` : ''}
-      </div>
+    <div class="card-rating ${ratingClass(s.rating)}">${s.rating.toFixed(1)}<span>/10</span></div>
+    <div class="card-name">${esc(s.name)}</div>
+    <div class="card-city">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      ${esc(s.cityState||s.city||'—')}
     </div>
-    <div class="card-bar ${barClass(s.rating)}" style="width:calc(${barW}% - 120px)"></div>
+    ${s.date ? `<div class="card-date">${s.date}</div>` : ''}
+    ${s.notes ? `<div class="card-note">${esc(s.notes)}</div>` : ''}
+    ${mapsUrl ? `<a class="card-nav-btn" href="${mapsUrl}" target="_blank"><svg viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Take Me Here</a>` : ''}
+    <div class="card-bar ${barClass(s.rating)}" style="width:${barW}%"></div>
   </div>`;
 }
 
